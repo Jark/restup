@@ -14,6 +14,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using MetroLog;
+using MetroLog.Targets;
 
 namespace HeadedDemo
 {
@@ -28,11 +30,19 @@ namespace HeadedDemo
         /// </summary>
         public App()
         {
+            SetupLogging();
             Microsoft.ApplicationInsights.WindowsAppInitializer.InitializeAsync(
                 Microsoft.ApplicationInsights.WindowsCollectors.Metadata |
                 Microsoft.ApplicationInsights.WindowsCollectors.Session);
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+        }
+
+        private void SetupLogging()
+        {
+            LogManagerFactory.DefaultConfiguration.AddTarget(LogLevel.Trace, LogLevel.Fatal, new StreamingFileTarget());
+            var logger = LogManagerFactory.DefaultLogManager.GetLogger("hi");
+            logger.Trace("Hey this is a test");
         }
 
         /// <summary>
@@ -42,7 +52,6 @@ namespace HeadedDemo
         /// <param name="e">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
-
 #if DEBUG
             if (System.Diagnostics.Debugger.IsAttached)
             {
@@ -77,6 +86,7 @@ namespace HeadedDemo
                 // parameter
                 rootFrame.Navigate(typeof(MainPage), e.Arguments);
             }
+
             // Ensure the current window is active
             Window.Current.Activate();
         }
