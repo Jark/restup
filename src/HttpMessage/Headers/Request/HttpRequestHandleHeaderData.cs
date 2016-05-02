@@ -1,6 +1,6 @@
-﻿using Devkoes.HttpMessage.Models.Contracts;
+﻿using Restup.HttpMessage.Models.Contracts;
 
-namespace Devkoes.HttpMessage.Headers.Request
+namespace Restup.HttpMessage.Headers.Request
 {
     /// <summary>
     /// Set specific properties on the <see cref="MutableHttpServerRequest"/> object based
@@ -31,6 +31,11 @@ namespace Devkoes.HttpMessage.Headers.Request
         public void Visit(AcceptCharsetHeader uh, MutableHttpServerRequest arg)
         {
             arg.AcceptCharsets = uh.ResponseContentEncoding;
+        }
+
+        public void Visit(AcceptEncodingHeader uh, MutableHttpServerRequest arg)
+        {
+            arg.AcceptEncodings = uh.AcceptEncodings;
         }
 
         public void Visit(ContentTypeHeader uh, MutableHttpServerRequest arg)

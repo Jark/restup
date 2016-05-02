@@ -6,12 +6,13 @@
     <SharedGUID>13aba022-a7c1-45b7-9e47-2bb74f2a7f9f</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>HttpMessage</Import_RootNamespace>
+    <Import_RootNamespace>Restup.HttpMessage</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Headers\HttpHeaderBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Headers\HttpRequestHeaderBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Headers\Request\AcceptCharsetHeader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Headers\Request\AcceptEncodingHeader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Headers\Request\AcceptHeader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Headers\Request\ContentLengthHeader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Headers\Request\ContentTypeHeader.cs" />
@@ -23,6 +24,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Headers\Response\AllowHeader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Headers\Response\CloseConnectionHeader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Headers\Response\ContentEncodingHeader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Headers\Response\ContentTypeHeader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Headers\Response\ContentLengthHeader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Headers\Response\DateHeader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Headers\Response\LocationHeader.cs" />

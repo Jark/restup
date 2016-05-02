@@ -1,9 +1,9 @@
-﻿using Devkoes.HttpMessage;
-using Devkoes.Restup.WebServer.Models.Contracts;
+﻿using Restup.HttpMessage;
+using Restup.Webserver.Models.Contracts;
 using System;
 using System.Threading.Tasks;
 
-namespace Devkoes.Restup.WebServer.Http
+namespace Restup.Webserver.Http
 {
     internal class RouteRegistration : IComparable<RouteRegistration>
     {
@@ -34,6 +34,7 @@ namespace Devkoes.Restup.WebServer.Http
                 request.AcceptCharsets,
                 request.ContentLength,
                 request.ContentType,
+                request.AcceptEncodings,
                 request.AcceptMediaTypes,
                 request.Content,
                 request.IsComplete);

@@ -1,13 +1,12 @@
-﻿using Devkoes.HttpMessage;
-using Devkoes.HttpMessage.Models.Schemas;
-using Devkoes.Restup.WebServer.UnitTests.TestHelpers;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+using Restup.HttpMessage.Models.Schemas;
+using Restup.HttpMessage.UnitTests.TestHelpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Devkoes.Restup.HttpMessage.UnitTests
+namespace Restup.HttpMessage.UnitTests
 {
     [TestClass]
     public class HttpServerRequestTest
@@ -281,6 +280,47 @@ namespace Devkoes.Restup.HttpMessage.UnitTests
             var request = MutableHttpServerRequest.Parse(new TestStream(byteStreamParts)).Result;
 
             Assert.AreEqual(false, request.IsComplete);
+        }
+
+        [TestMethod]
+        public void ParseRequestStream_AcceptEncodingWithQuality_QualityHighestAsAccept()
+        {
+            var streamedRequest = "GET /api/data HTTP/1.1\r\nAccept-Encoding: gzip;q=0.5,deflate;q=0.7\r\n\r\n";
+
+            var byteStreamParts = Encoding.UTF8.GetBytes(streamedRequest);
+
+            var request = MutableHttpServerRequest.Parse(new TestStream(new[] { byteStreamParts })).Result;
+
+            Assert.AreEqual(true, request.IsComplete);
+            Assert.AreEqual("deflate", request.AcceptEncodings.First());
+        }
+
+        [TestMethod]
+        public void ParseRequestStream_AcceptEncodingWithQuality_DefaultQuality1AsAccept()
+        {
+            var streamedRequest = "GET /api/data HTTP/1.1\r\nAccept-Encoding: gzip,deflate;q=0.7\r\n\r\n";
+
+            var byteStreamParts = Encoding.UTF8.GetBytes(streamedRequest);
+
+            var request = MutableHttpServerRequest.Parse(new TestStream(new[] { byteStreamParts })).Result;
+
+            Assert.AreEqual(true, request.IsComplete);
+            Assert.AreEqual("gzip", request.AcceptEncodings.First());
+        }
+
+        [TestMethod]
+        public void ParseRequestStream_AllAcceptEncodingsAreReturned()
+        {
+            var streamedRequest = "GET /api/data HTTP/1.1\r\nAccept-Encoding: gzip,deflate;q=0.7\r\n\r\n";
+
+            var byteStreamParts = Encoding.UTF8.GetBytes(streamedRequest);
+
+            var request = MutableHttpServerRequest.Parse(new TestStream(new[] { byteStreamParts })).Result;
+
+            Assert.AreEqual(true, request.IsComplete);
+            Assert.AreEqual(2, request.AcceptEncodings.Count());
+            Assert.AreEqual("gzip", request.AcceptEncodings.ElementAt(0));
+            Assert.AreEqual("deflate", request.AcceptEncodings.ElementAt(1));
         }
     }
 }

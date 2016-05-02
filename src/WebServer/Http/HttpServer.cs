@@ -1,6 +1,8 @@
-﻿using Devkoes.HttpMessage;
-using Devkoes.HttpMessage.Models.Schemas;
-using Devkoes.Restup.WebServer.Models.Contracts;
+﻿using Restup.HttpMessage;
+using Restup.HttpMessage.Headers.Response;
+using Restup.HttpMessage.Models.Contracts;
+using Restup.HttpMessage.Models.Schemas;
+using Restup.Webserver.Models.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,15 +10,15 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Networking.Sockets;
-using Windows.Storage.Streams;
 
-namespace Devkoes.Restup.WebServer.Http
+namespace Restup.Webserver.Http
 {
     public class HttpServer : IDisposable
     {
         private readonly int _port;
         private readonly StreamSocketListener _listener;
         private readonly SortedSet<RouteRegistration> _routes;
+        private readonly ContentEncoderFactory _contentEncoderFactory;
 
         public HttpServer(int serverPort)
         {
@@ -25,6 +27,7 @@ namespace Devkoes.Restup.WebServer.Http
             _listener = new StreamSocketListener();
 
             _listener.ConnectionReceived += ProcessRequestAsync;
+            _contentEncoderFactory = new ContentEncoderFactory();
         }
 
         public async Task StartServerAsync()
@@ -102,15 +105,44 @@ namespace Devkoes.Restup.WebServer.Http
             var routeRegistration = _routes.FirstOrDefault(x => x.Match(request));
             if (routeRegistration == null)
             {
-                return new HttpServerResponse(new Version(1, 1), HttpResponseStatus.BadRequest);
+                return HttpServerResponse.Create(new Version(1, 1), HttpResponseStatus.BadRequest);
             }
 
-            return await routeRegistration.HandleAsync(request);
+            var httpResponse = await routeRegistration.HandleAsync(request);
+            return await AddContentEncodingAsync(httpResponse, request.AcceptEncodings);
         }
 
-        private async Task WriteResponseAsync(HttpServerResponse response, StreamSocket socket)
+        private async Task<HttpServerResponse> AddContentEncodingAsync(HttpServerResponse httpResponse, IEnumerable<string> acceptEncodings)
         {
-            using (IOutputStream output = socket.OutputStream)
+            var contentEncoder = _contentEncoderFactory.GetEncoder(acceptEncodings);
+            var encodedContent = await contentEncoder.Encode(httpResponse.Content);
+
+            var newResponse = HttpServerResponse.Create(httpResponse.HttpVersion, httpResponse.ResponseStatus);
+
+            foreach (var header in httpResponse.Headers)
+            {
+                newResponse.AddHeader(header);
+            }
+            newResponse.Content = encodedContent;
+            newResponse.AddHeader(new ContentLengthHeader(encodedContent?.Length ?? 0));
+
+            var contentEncodingHeader = contentEncoder.ContentEncodingHeader;
+            AddHeaderIfNotNull(contentEncodingHeader, newResponse);
+
+            return newResponse;
+        }
+
+        private static void AddHeaderIfNotNull(IHttpHeader contentEncodingHeader, HttpServerResponse newResponse)
+        {
+            if (contentEncodingHeader != null)
+            {
+                newResponse.AddHeader(contentEncodingHeader);
+            }
+        }
+
+        private static async Task WriteResponseAsync(HttpServerResponse response, StreamSocket socket)
+        {
+            using (var output = socket.OutputStream)
             {
                 await output.WriteAsync(response.ToBytes().AsBuffer());
                 await output.FlushAsync();
