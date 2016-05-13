@@ -7,8 +7,8 @@
     <ProjectGuid>{01FC96B0-F090-4FB8-B597-25850F315EFB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WebServer.Logging.MetroLog</RootNamespace>
-    <AssemblyName>WebServer.Logging.MetroLog</AssemblyName>
+    <RootNamespace>Restup.WebServer.Logging.MetroLog</RootNamespace>
+    <AssemblyName>Restup.WebServer.Logging.MetroLog</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.10586.0</TargetPlatformVersion>

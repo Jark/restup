@@ -7,8 +7,8 @@
     <ProjectGuid>{06A3D120-5923-4AD1-8411-7395A1EC6E94}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WebServer.Logging</RootNamespace>
-    <AssemblyName>WebServer.Logging</AssemblyName>
+    <RootNamespace>Restup.WebServer.Logging</RootNamespace>
+    <AssemblyName>Restup.WebServer.Logging</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.10586.0</TargetPlatformVersion>

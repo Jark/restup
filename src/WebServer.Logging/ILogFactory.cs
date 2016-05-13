@@ -1,4 +1,4 @@
-﻿namespace WebServer.Logging
+﻿namespace Restup.WebServer.Logging
 {
     public interface ILogFactory
     {

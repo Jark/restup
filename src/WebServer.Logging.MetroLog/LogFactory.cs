@@ -1,6 +1,7 @@
 using MetroLog;
+using ILogger = Restup.WebServer.Logging.ILogger;
 
-namespace WebServer.Logging.MetroLog
+namespace Restup.WebServer.Logging.MetroLog
 {
     public class LogFactory : ILogFactory
     {

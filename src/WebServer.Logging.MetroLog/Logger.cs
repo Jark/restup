@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WebServer.Logging.MetroLog
+namespace Restup.WebServer.Logging.MetroLog
 {
     public class Logger : ILogger
     {
