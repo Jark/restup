@@ -1,6 +1,8 @@
-﻿namespace Restup.WebServer.Logging
+﻿using System;
+
+namespace Restup.WebServer.Logging
 {
-    public interface ILogFactory
+    public interface ILogFactory : IDisposable
     {
         ILogger GetLogger<T>();
         ILogger GetLogger(string name);

@@ -8,7 +8,7 @@ Builds the WebServer and WebServer.Logging project. Optionally updates the relea
 
 This file is meant as an easy way to generate the restup releated packages and test them before release using the file system as a package source.
 
-The loggingVersion is optional and set to "1.0.0" since we don't expect it to change any time soon.
+The loggingVersion & loggingSimpleVersion is optional and set to "1.0.0" since we don't expect it to change any time soon.
 
 The output can be found in the nugetoutput folder.
 
@@ -16,6 +16,7 @@ The output can be found in the nugetoutput folder.
 param(
     [Parameter(Mandatory=$true)] [string]$mainVersion,
     [Parameter(Mandatory=$false)] [string]$loggingVersion = "1.0.0",
+	[Parameter(Mandatory=$false)] [string]$loggingSimpleVersion = "1.0.0",
     [Parameter(Mandatory=$false)] [string]$mainReleaseNotes,
     [Parameter(Mandatory=$false)] [string]$loggingReleaseNotes
 )
@@ -30,9 +31,11 @@ Remove-Item $outputDirectory -Recurse -Force | Out-Null
 New-Item $outputDirectory -ItemType Directory -Force | Out-Null
 
 Set-NuSpecFile "$PSScriptRoot/../src/WebServer.Logging/WebServer.Logging.nuspec" $loggingVersion $loggingReleaseNotes
+Set-NuSpecFile "$PSScriptRoot/../src/WebServer.Logging.Simple/WebServer.Logging.Simple.nuspec" $loggingSimpleVersion $loggingReleaseNotes
 Set-NuSpecFile "$PSScriptRoot/../src/WebServer/WebServer.nuspec" $mainVersion $mainReleaseNotes
 
 Invoke-NuGetPack "$PSScriptRoot/../src/WebServer.Logging/WebServer.Logging.csproj" $outputDirectory
+Invoke-NuGetPack "$PSScriptRoot/../src/WebServer.Logging.Simple/WebServer.Logging.Simple.csproj" $outputDirectory
 Invoke-NuGetPack "$PSScriptRoot/../src/WebServer/WebServer.csproj" $outputDirectory
 
-Write-Host "The NuGet packages for Restup and Restup.Logging can be found in $outputDirectory"
+Write-Host "The NuGet packages for Restup, Restup.Logging and Restup.Logging.Simple can be found in $outputDirectory"
