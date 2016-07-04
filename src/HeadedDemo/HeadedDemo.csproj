@@ -140,6 +140,14 @@
       <Project>{71394b97-2990-4e92-a7cc-0642d4860651}</Project>
       <Name>DemoStaticFiles</Name>
     </ProjectReference>
+    <ProjectReference Include="..\WebServer.Logging.Simple\WebServer.Logging.Simple.csproj">
+      <Project>{01FC96B0-F090-4FB8-B597-25850F315EFB}</Project>
+      <Name>WebServer.Logging.LoggingChannel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WebServer.Logging\WebServer.Logging.csproj">
+      <Project>{06A3D120-5923-4AD1-8411-7395A1EC6E94}</Project>
+      <Name>WebServer.Logging</Name>
+    </ProjectReference>
     <ProjectReference Include="..\WebServer.Models\Webserver.Models.csproj">
       <Project>{0b20d095-2896-41a6-865d-172dfd5ecc99}</Project>
       <Name>Webserver.Models</Name>

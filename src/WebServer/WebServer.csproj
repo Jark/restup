@@ -128,6 +128,7 @@
     <Compile Include="Http\IContentEncoder.cs" />
     <Compile Include="Http\NoContentEncoder.cs" />
     <Compile Include="Http\RouteRegistration.cs" />
+    <Compile Include="LogManager.cs" />
     <Compile Include="Models\Contracts\IRouteHandler.cs" />
     <Compile Include="Models\Schemas\MediaType.cs" />
     <Compile Include="Models\Schemas\RestServerRequest.cs" />

@@ -8,11 +8,11 @@ namespace Restup.WebServer.Logging.Simple
         private readonly LoggingChannel _loggingChannel;
         private readonly FileLoggingSession _loggingFileSession;
 
-        public static Guid LoggingChannelId = new Guid("deea9179-380f-445f-8709-28b2e296a9ae");
+        public static Guid DefaultLoggingChannelId = new Guid("deea9179-380f-445f-8709-28b2e296a9ae");
 
-        public LogFactory(string name = "Restup.WebServer", LoggingChannelOptions options = null, string fileLoggingSessionName = null)
+        public LogFactory(string name = "Restup.WebServer", Guid? loggingChannelId = null, LoggingChannelOptions options = null, string fileLoggingSessionName = null)
         {            
-            _loggingChannel = new LoggingChannel(name, options, LoggingChannelId);
+            _loggingChannel = new LoggingChannel(name, options, loggingChannelId ?? DefaultLoggingChannelId);
             if (!string.IsNullOrWhiteSpace(fileLoggingSessionName))
             {
                 _loggingFileSession = GetFileLoggingSession(_loggingChannel, fileLoggingSessionName);

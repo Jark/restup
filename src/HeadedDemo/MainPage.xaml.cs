@@ -5,6 +5,8 @@ using Restup.Webserver.Rest;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Restup.Webserver;
+using Restup.WebServer.Logging.Simple;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -29,6 +31,8 @@ namespace Restup.HeadedDemo
 
         private async Task InitializeWebServer()
         {
+            LogManager.SetLogFactory(new LogFactory(fileLoggingSessionName: "HeadedDemo"));
+
             var httpServer = new HttpServer(8800);
             _httpServer = httpServer;
 
