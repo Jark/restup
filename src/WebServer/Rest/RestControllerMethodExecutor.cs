@@ -1,36 +1,30 @@
-﻿using Restup.Webserver.InstanceCreators;
-using Restup.Webserver.Models.Schemas;
-using System;
+﻿using System;
 using System.Linq;
+using System.Reflection;
+using Restup.Webserver.Models.Schemas;
 
 namespace Restup.Webserver.Rest
 {
     internal class RestControllerMethodExecutor : RestMethodExecutor
     {
-        private readonly RestResponseFactory _responseFactory;
-
-        public RestControllerMethodExecutor()
+        public RestControllerMethodExecutor(ConstructorInfo constructor, Func<object[]> constructorArgs, MethodInfo method)
+            : base(constructor, constructorArgs, method)
         {
-            _responseFactory = new RestResponseFactory();
         }
 
-        protected override object ExecuteAnonymousMethod(RestControllerMethodInfo info, RestServerRequest request, ParsedUri requestUri)
+        protected override bool TryGetMethodParametersFromRequest(RestControllerMethodInfo methodInfo,
+            RestServerRequest request, ParsedUri requestUri, out object[] methodParameters)
         {
-            var instantiator = InstanceCreatorCache.Default.GetCreator(info.MethodInfo.DeclaringType);
-
-            object[] parameters;
             try
             {
-                parameters = info.GetParametersFromUri(requestUri).ToArray();
+                methodParameters = methodInfo.GetParametersFromUri(requestUri).ToArray();
+                return true;
             }
             catch (FormatException)
             {
-                return _responseFactory.CreateBadRequest();
+                methodParameters = null;
+                return false;
             }
-
-            return info.MethodInfo.Invoke(
-                    instantiator.Create(info.ControllerConstructor, info.ControllerConstructorArgs()),
-                    parameters);
         }
     }
 }

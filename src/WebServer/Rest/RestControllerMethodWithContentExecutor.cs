@@ -4,24 +4,24 @@ using Restup.Webserver.InstanceCreators;
 using Restup.Webserver.Models.Schemas;
 using System;
 using System.Linq;
+using System.Reflection;
 
 namespace Restup.Webserver.Rest
 {
     internal class RestControllerMethodWithContentExecutor : RestMethodExecutor
     {
         private readonly ContentSerializer _contentSerializer;
-        private readonly RestResponseFactory _responseFactory;
+        private readonly Type _contentParameterType;
 
-        public RestControllerMethodWithContentExecutor()
+        public RestControllerMethodWithContentExecutor(ConstructorInfo constructor, Func<object[]> constructorArgs, MethodInfo method, Type contentParameterType)
+            : base(constructor, constructorArgs, method)
         {
             _contentSerializer = new ContentSerializer();
-            _responseFactory = new RestResponseFactory();
+            _contentParameterType = contentParameterType;
         }
 
-        protected override object ExecuteAnonymousMethod(RestControllerMethodInfo info, RestServerRequest request, ParsedUri requestUri)
+        protected override bool TryGetMethodParametersFromRequest(RestControllerMethodInfo methodInfo, RestServerRequest request, ParsedUri requestUri, out object[] methodParameters)
         {
-            var instantiator = InstanceCreatorCache.Default.GetCreator(info.MethodInfo.DeclaringType);
-
             object contentObj = null;
             try
             {
@@ -30,31 +30,30 @@ namespace Restup.Webserver.Rest
                     contentObj = _contentSerializer.FromContent(
                         request.ContentEncoding.GetString(request.HttpServerRequest.Content),
                         request.ContentMediaType,
-                        info.ContentParameterType);
+                        _contentParameterType);
                 }
             }
             catch (JsonReaderException)
             {
-                return _responseFactory.CreateBadRequest();
+                methodParameters = null;
+                return false;
             }
             catch (InvalidOperationException)
             {
-                return _responseFactory.CreateBadRequest();
+                methodParameters = null;
+                return false;
             }
 
-            object[] parameters = null;
             try
             {
-                parameters = info.GetParametersFromUri(requestUri).Concat(new[] { contentObj }).ToArray();
+                methodParameters = methodInfo.GetParametersFromUri(requestUri).Concat(new[] { contentObj }).ToArray();
+                return true;
             }
             catch (FormatException)
             {
-                return _responseFactory.CreateBadRequest();
+                methodParameters = null;
+                return false;
             }
-
-            return info.MethodInfo.Invoke(
-                    instantiator.Create(info.ControllerConstructor, info.ControllerConstructorArgs()),
-                    parameters);
         }
     }
 }

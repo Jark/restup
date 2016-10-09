@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Restup.HttpMessage.Models.Schemas;
 using Restup.Webserver.Attributes;
 using Restup.Webserver.Models.Contracts;
+using Restup.Webserver.Models.Schemas;
 
 namespace Restup.Webserver.Rest
 {
@@ -22,32 +24,36 @@ namespace Restup.Webserver.Rest
         private readonly UriParser _uriParser;
         private readonly IEnumerable<ParameterValueGetter> _parameterGetters;
 
+        internal int ParametersCount { get; }      
+
         internal ParsedUri MatchUri { get; }
-        internal MethodInfo MethodInfo { get; }
         internal HttpMethod Verb { get; }
-        internal bool HasContentParameter { get; }
         internal Type ContentParameterType { get; }
         internal TypeWrapper ReturnTypeWrapper { get; }
-        internal ConstructorInfo ControllerConstructor { get; }
-        internal Func<object[]> ControllerConstructorArgs { get; }
+        private readonly IRestMethodExecutor _restMethodExecutor;
 
         internal RestControllerMethodInfo(MethodInfo methodInfo, ConstructorInfo constructor, Func<object[]> constructorArgs, TypeWrapper typeWrapper)
         {
-            ControllerConstructor = constructor;
-
+            ParametersCount = methodInfo.GetParameters().Count();
             _uriParser = new UriParser();
             MatchUri = GetUriFromMethod(methodInfo);
 
             ReturnTypeWrapper = typeWrapper;
-            ControllerConstructorArgs = constructorArgs;
-            MethodInfo = methodInfo;
 
             _validParameterTypes = GetValidParameterTypes();
             _parameterGetters = GetParameterGetters(methodInfo);
-            Verb = GetVerb();
+            Verb = GetVerb(methodInfo);
 
             Type contentParameterType;
-            HasContentParameter = TryGetContentParameterType(methodInfo, out contentParameterType);
+            if (TryGetContentParameterType(methodInfo, out contentParameterType))
+            {
+                _restMethodExecutor = new RestControllerMethodWithContentExecutor(constructor, constructorArgs, methodInfo, contentParameterType);
+            }
+            else
+            {
+                _restMethodExecutor = new RestControllerMethodExecutor(constructor, constructorArgs, methodInfo);
+            }
+
             ContentParameterType = contentParameterType;
         }
 
@@ -156,14 +162,14 @@ namespace Restup.Webserver.Rest
             return !parameters.Except(_validParameterTypes).Any();
         }
 
-        private HttpMethod GetVerb()
+        private HttpMethod GetVerb(MethodInfo methodInfo)
         {
             TypeInfo returnType;
 
             if (ReturnTypeWrapper == TypeWrapper.None)
-                returnType = MethodInfo.ReturnType.GetTypeInfo();
+                returnType = methodInfo.ReturnType.GetTypeInfo();
             else
-                returnType = MethodInfo.ReturnType.GetGenericArguments()[0].GetTypeInfo();
+                returnType = methodInfo.ReturnType.GetGenericArguments()[0].GetTypeInfo();
 
             return GetVerb(returnType);
         }
@@ -217,6 +223,11 @@ namespace Restup.Webserver.Rest
         public override string ToString()
         {
             return $"Hosting {Verb} method on {MatchUri}";
+        }
+
+        public Task<IRestResponse> ExecuteAsync(RestServerRequest req, ParsedUri parsedUri)
+        {
+            return _restMethodExecutor.ExecuteMethodAsync(this, req, parsedUri);
         }
     }
 }

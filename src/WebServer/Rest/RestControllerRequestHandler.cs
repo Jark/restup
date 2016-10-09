@@ -17,7 +17,6 @@ namespace Restup.Webserver.Rest
     {
         private ImmutableArray<RestControllerMethodInfo> _restMethodCollection;
         private readonly RestResponseFactory _responseFactory;
-        private readonly RestControllerMethodExecutorFactory _methodExecuteFactory;
         private readonly UriParser _uriParser;
         private readonly RestControllerMethodInfoValidator _restControllerMethodInfoValidator;
 
@@ -25,7 +24,6 @@ namespace Restup.Webserver.Rest
         {
             _restMethodCollection = ImmutableArray<RestControllerMethodInfo>.Empty;
             _responseFactory = new RestResponseFactory();
-            _methodExecuteFactory = new RestControllerMethodExecutorFactory();
             _uriParser = new UriParser();
             _restControllerMethodInfoValidator = new RestControllerMethodInfoValidator();
         }
@@ -56,7 +54,7 @@ namespace Restup.Webserver.Rest
             _restControllerMethodInfoValidator.Validate<T>(_restMethodCollection, newControllerMethodInfos);
 
             _restMethodCollection = _restMethodCollection.Concat(newControllerMethodInfos)
-                .OrderByDescending(x => x.MethodInfo.GetParameters().Count())
+                .OrderByDescending(x => x.ParametersCount)
                 .ToImmutableArray();
 
             InstanceCreatorCache.Default.CacheCreator(typeof(T));
@@ -131,11 +129,9 @@ namespace Restup.Webserver.Rest
                 return new MethodNotAllowedResponse(restMethods.Select(r => r.Verb));
             }
 
-            var restMethodExecutor = _methodExecuteFactory.Create(restMethod);
-
             try
             {
-                return await restMethodExecutor.ExecuteMethodAsync(restMethod, req, parsedUri);
+                return await restMethod.ExecuteAsync(req, parsedUri);
             }
             catch
             {
