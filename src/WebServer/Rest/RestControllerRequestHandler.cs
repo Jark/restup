@@ -69,37 +69,9 @@ namespace Restup.Webserver.Rest
 
             foreach (var restMethod in possibleValidRestMethods)
             {
-                if (HasRestResponse(restMethod))
-                    yield return new RestControllerMethodInfo(restMethod, constructor, constructorArgs, RestControllerMethodInfo.TypeWrapper.None);
-                else if (HasAsyncRestResponse(restMethod, typeof(Task<>)))
-                    yield return new RestControllerMethodInfo(restMethod, constructor, constructorArgs, RestControllerMethodInfo.TypeWrapper.Task);
-                else if (HasAsyncRestResponse(restMethod, typeof(IAsyncOperation<>)))
-                    yield return new RestControllerMethodInfo(restMethod, constructor, constructorArgs, RestControllerMethodInfo.TypeWrapper.AsyncOperation);
+                var restMethodExecutor = RestMethodExecutorFactory.Create(restMethod, constructor, constructorArgs);
+                yield return new RestControllerMethodInfo(restMethod, restMethodExecutor);
             }
-        }
-
-        private static bool HasRestResponse(MethodInfo m)
-        {
-            return m.ReturnType.GetTypeInfo().ImplementedInterfaces.Contains(typeof(IRestResponse));
-        }
-
-        private static bool HasAsyncRestResponse(MethodInfo m, Type type)
-        {
-            if (!m.ReturnType.IsConstructedGenericType)
-                return false;
-
-            var genericTypeDefinition = m.ReturnType.GetGenericTypeDefinition();
-            var isAsync = genericTypeDefinition == type;
-            if (!isAsync)
-                return false;
-
-            var genericArgs = m.ReturnType.GetGenericArguments();
-            if (!genericArgs.Any())
-            {
-                return false;
-            }
-
-            return genericArgs[0].GetTypeInfo().ImplementedInterfaces.Contains(typeof(IRestResponse));
         }
 
         internal async Task<IRestResponse> HandleRequestAsync(RestServerRequest req)

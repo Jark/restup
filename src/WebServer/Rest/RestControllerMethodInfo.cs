@@ -12,49 +12,27 @@ namespace Restup.Webserver.Rest
 {
     internal class RestControllerMethodInfo
     {
-        internal enum TypeWrapper
-        {
-            None,
-            Task,
-            AsyncOperation
-        }
-
         private readonly IEnumerable<Type> _validParameterTypes;
-
         private readonly UriParser _uriParser;
         private readonly IEnumerable<ParameterValueGetter> _parameterGetters;
+        private readonly IRestMethodExecutor _restMethodExecutor;
 
-        internal int ParametersCount { get; }      
+        internal int ParametersCount { get; }
 
         internal ParsedUri MatchUri { get; }
         internal HttpMethod Verb { get; }
-        internal Type ContentParameterType { get; }
-        internal TypeWrapper ReturnTypeWrapper { get; }
-        private readonly IRestMethodExecutor _restMethodExecutor;
 
-        internal RestControllerMethodInfo(MethodInfo methodInfo, ConstructorInfo constructor, Func<object[]> constructorArgs, TypeWrapper typeWrapper)
+        internal RestControllerMethodInfo(MethodInfo methodInfo, IRestMethodExecutor restMethodExecutor)
         {
+            _restMethodExecutor = restMethodExecutor;
+
             ParametersCount = methodInfo.GetParameters().Count();
             _uriParser = new UriParser();
             MatchUri = GetUriFromMethod(methodInfo);
 
-            ReturnTypeWrapper = typeWrapper;
-
             _validParameterTypes = GetValidParameterTypes();
             _parameterGetters = GetParameterGetters(methodInfo);
-            Verb = GetVerb(methodInfo);
-
-            Type contentParameterType;
-            if (TryGetContentParameterType(methodInfo, out contentParameterType))
-            {
-                _restMethodExecutor = new RestControllerMethodWithContentExecutor(constructor, constructorArgs, methodInfo, contentParameterType);
-            }
-            else
-            {
-                _restMethodExecutor = new RestControllerMethodExecutor(constructor, constructorArgs, methodInfo);
-            }
-
-            ContentParameterType = contentParameterType;
+            Verb = GetVerb(restMethodExecutor.ReturnType);           
         }
 
         private ParsedUri GetUriFromMethod(MethodInfo methodInfo)
@@ -102,19 +80,6 @@ namespace Restup.Webserver.Rest
             };
         }
 
-        private bool TryGetContentParameterType(MethodInfo methodInfo, out Type content)
-        {
-            var fromContentParameter = methodInfo.GetParameters().FirstOrDefault(p => p.GetCustomAttribute<FromContentAttribute>() != null);
-            if (fromContentParameter != null)
-            {
-                content = fromContentParameter.ParameterType;
-                return true;
-            }
-
-            content = null;
-            return false;
-        }
-
         private ParameterValueGetter[] GetParameterGetters(MethodInfo methodInfo)
         {
             var methodParameters = (from p in methodInfo.GetParameters()
@@ -160,18 +125,6 @@ namespace Restup.Webserver.Rest
         private bool ParametersHaveValidType(IEnumerable<Type> parameters)
         {
             return !parameters.Except(_validParameterTypes).Any();
-        }
-
-        private HttpMethod GetVerb(MethodInfo methodInfo)
-        {
-            TypeInfo returnType;
-
-            if (ReturnTypeWrapper == TypeWrapper.None)
-                returnType = methodInfo.ReturnType.GetTypeInfo();
-            else
-                returnType = methodInfo.ReturnType.GetGenericArguments()[0].GetTypeInfo();
-
-            return GetVerb(returnType);
         }
 
         private HttpMethod GetVerb(TypeInfo returnType)

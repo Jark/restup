@@ -146,7 +146,9 @@
     <Compile Include="Models\Schemas\MediaType.cs" />
     <Compile Include="Models\Schemas\RestResponse.cs" />
     <Compile Include="Models\Schemas\RestServerRequest.cs" />
+    <Compile Include="Rest\IReturnTypeWrapper.cs" />
     <Compile Include="Rest\MatchUri.cs" />
+    <Compile Include="Rest\NoneReturnTypeWrapper.cs" />
     <Compile Include="Rest\ParameterValueGetter.cs" />
     <Compile Include="Rest\ParsedUri.cs" />
     <Compile Include="Rest\PathParameterValueGetter.cs" />
@@ -155,6 +157,7 @@
     <Compile Include="Rest\ReflectionHelper.cs" />
     <Compile Include="Rest\RestControllerMethodInfoValidator.cs" />
     <Compile Include="Rest\RestMethodExecutor.cs" />
+    <Compile Include="Rest\RestMethodExecutorFactory.cs" />
     <Compile Include="Rest\RestRoutehandler.cs" />
     <Compile Include="Rest\RestControllerMethodWithContentExecutor.cs" />
     <Compile Include="Extensions.cs" />
@@ -180,6 +183,9 @@
     <Compile Include="Rest\RestControllerMethodExecutor.cs" />
     <Compile Include="Rest\RestServerRequestFactory.cs" />
     <Compile Include="Rest\RestToHttpResponseConverter.cs" />
+    <Compile Include="Rest\ReturnTypeWrapperFactory.cs" />
+    <Compile Include="Rest\TaskAsyncOperationReturnTypeWrapper.cs" />
+    <Compile Include="Rest\TaskReturnTypeWrapper.cs" />
     <Compile Include="Rest\UniqueMatchUriAndVerbComparer.cs" />
     <Compile Include="Rest\UriParser.cs" />
     <Compile Include="Rest\UriParameter.cs" />

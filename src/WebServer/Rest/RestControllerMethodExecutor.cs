@@ -7,8 +7,10 @@ namespace Restup.Webserver.Rest
 {
     internal class RestControllerMethodExecutor : RestMethodExecutor
     {
-        public RestControllerMethodExecutor(ConstructorInfo constructor, Func<object[]> constructorArgs, MethodInfo method)
-            : base(constructor, constructorArgs, method)
+        public RestControllerMethodExecutor(
+            ConstructorInfo constructor, Func<object[]> constructorArgs,
+            MethodInfo method, IReturnTypeWrapper returnTypeWrapper)
+            : base(constructor, constructorArgs, method, returnTypeWrapper)
         {
         }
 

@@ -13,8 +13,10 @@ namespace Restup.Webserver.Rest
         private readonly ContentSerializer _contentSerializer;
         private readonly Type _contentParameterType;
 
-        public RestControllerMethodWithContentExecutor(ConstructorInfo constructor, Func<object[]> constructorArgs, MethodInfo method, Type contentParameterType)
-            : base(constructor, constructorArgs, method)
+        public RestControllerMethodWithContentExecutor(
+            ConstructorInfo constructor, Func<object[]> constructorArgs,
+            MethodInfo method, IReturnTypeWrapper returnTypeWrapper, Type contentParameterType)
+            : base(constructor, constructorArgs, method, returnTypeWrapper)
         {
             _contentSerializer = new ContentSerializer();
             _contentParameterType = contentParameterType;
